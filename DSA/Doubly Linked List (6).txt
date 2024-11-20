@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int count = 0;
+
+struct node {
+    struct node *prev;
+    int ssn, phno;
+    float sal;
+    char name[20], dept[10], desg[20];
+    struct node *next;
+} *head = NULL, *newnode = NULL, *temp = NULL;
+
+void create() {
+    newnode = (struct node *)malloc(sizeof(struct node));
+    if (newnode == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+    newnode->prev = NULL;
+    newnode->next = NULL;
+
+    printf("\nEnter SSN, Name, Department, Designation, Salary, and Phone Number of employee: ");
+    scanf("%d %s %s %s %f %d", &newnode->ssn, newnode->name, newnode->dept, newnode->desg, &newnode->sal, &newnode->phno);
+    count++;
+}
+
+void insertbeg() {
+    create();
+    if (head == NULL) {
+        head = newnode;
+    } else {
+        newnode->next = head;
+        head->prev = newnode;
+        head = newnode;
+    }
+}
+
+void insertend() {
+    create();
+    if (head == NULL) {
+        head = newnode;
+    } else {
+        temp = head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newnode;
+        newnode->prev = temp;
+    }
+}
+
+void displaybeg() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    printf("\nLinked list elements from beginning:\n");
+    struct node *temp1 = head;
+    while (temp1 != NULL) {
+        printf("%d %s %s %s %.2f %d\n", temp1->ssn, temp1->name, temp1->dept, temp1->desg, temp1->sal, temp1->phno);
+        temp1 = temp1->next;
+    }
+    printf("Number of employees = %d\n", count);
+}
+
+int deleteend() {
+    if (head == NULL) {
+        printf("List is empty, cannot delete.\n");
+        return -1;
+    }
+    
+    struct node *temp1 = head;
+    if (temp1->next == NULL) { // Only one node
+        printf("Deleted: %d %s %s %s %.2f %d\n", temp1->ssn, temp1->name, temp1->dept, temp1->desg, temp1->sal, temp1->phno);
+        free(temp1);
+        head = NULL;
+    } else {
+        while (temp1->next != NULL) {
+            temp1 = temp1->next;
+        }
+        printf("Deleted: %d %s %s %s %.2f %d\n", temp1->ssn, temp1->name, temp1->dept, temp1->desg, temp1->sal, temp1->phno);
+        temp1->prev->next = NULL; // Remove last node
+        free(temp1 );
+    }
+    count--;
+    return 0;
+}
+
+int deletebeg() {
+    if (head == NULL) {
+        printf("List is empty, cannot delete.\n");
+        return -1;
+    }
+
+    struct node *temp1 = head;
+    if (temp1->next == NULL) { // Only one node
+        printf("Deleted: %d %s %s %s %.2f %d\n", temp1->ssn, temp1->name, temp1->dept, temp1->desg, temp1->sal, temp1->phno);
+        free(temp1);
+        head = NULL;
+    } else {
+        head = head->next;
+        head->prev = NULL;
+        printf("Deleted: %d %s %s %s %.2f %d\n", temp1->ssn, temp1->name, temp1->dept, temp1->desg, temp1->sal, temp1->phno);
+        free(temp1);
+    }
+    count--;
+    return 0;
+}
+
+int main() {
+    int ch, n, i;
+    printf("-----------------MENU--------------------\n");
+    printf("\n1 - Create a DLL of n employees");
+    printf("\n2 - Display from beginning");
+    printf("\n3 - Insert at end");
+    printf("\n4 - Delete at end");
+    printf("\n5 - Insert at beginning");
+    printf("\n6 - Delete at beginning");
+    printf("\n7 - Exit\n");
+    printf("------------------------------------------\n");
+
+    while (1) {
+        printf("\nEnter choice: ");
+        scanf("%d", &ch);
+        switch (ch) {
+            case 1:
+                printf("\nEnter number of employees: ");
+                scanf("%d", &n);
+                for (i = 0; i < n; i++) {
+                    insertend();
+                }
+                break;
+            case 2:
+                displaybeg();
+                break;
+            case 3:
+                insertend();
+                break;
+            case 4:
+                deleteend();
+                break;
+            case 5:
+                insertbeg();
+                break;
+            case 6:
+                deletebeg();
+                break;
+            case 7:
+                exit(0);
+            default:
+                printf("Wrong choice\n");
+        }
+    }
+    return 0; // Return statement for main
+}

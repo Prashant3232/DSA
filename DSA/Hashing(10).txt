@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <string.h>
+
+#define TABLE_SIZE 15 // Number of slots in the hash table
+
+// Define a structure for hash table records
+struct records {
+    int flag;    // Indicates if the slot is occupied (1) or empty (0)
+    int usn;     // Unique key (USN) for the record
+    char name[20]; // Name of the student
+} rec[TABLE_SIZE];
+
+// Hash function to calculate index
+int hash(int m) {
+    return m % TABLE_SIZE;
+}
+
+void main() {
+    int usn, loc, i, j, n;
+    char name[20];
+    FILE *in, *outp;
+
+    printf("\nEnter the number of records to read from file: ");
+    scanf("%d", &n);
+
+    // Validate the number of records
+    if (n > TABLE_SIZE) {
+        printf("\nPlease provide less than or equal to %d records!\n", TABLE_SIZE);
+        return;
+    }
+
+    // Initialize the hash table
+    for (i = 0; i < TABLE_SIZE; i++) {
+        rec[i].flag = 0;
+    }
+
+    // Open input file
+    in = fopen("C:/Users/Admin/OneDrive/Desktop/input.txt", "r");
+    if (in == NULL) {
+        printf("\nError opening input file! Ensure 'input.txt' exists in the project directory.\n");
+        return;
+    }
+
+    // Read records and insert into hash table
+    for (i = 0; i < n; i++) {
+        fscanf(in, "%s %d", name, &usn);
+        loc = hash(usn); // Calculate the hash value
+        printf("\nInserting at address: %d", loc);
+
+        // Insert into the hash table using linear probing for collisions
+        while (rec[loc].flag == 1) {
+            loc = (loc + 1) % TABLE_SIZE; // Linear probing with wrap-around
+        }
+        strcpy(rec[loc].name, name);
+        rec[loc].usn = usn;
+        rec[loc].flag = 1;
+    }
+
+    fclose(in); // Close input file
+
+    // Display the hash table content
+    printf("\n\nThe Hash Table Content is:\n");
+    for (i = 0; i < TABLE_SIZE; i++) {
+        if (rec[i].flag == 1) {
+            printf("Slot %d: %s | %d\n", i, rec[i].name, rec[i].usn);
+        } else {
+            printf("Slot %d: ##\n", i); // Empty slot
+        }
+    }
+
+    // Open output file
+    outp = fopen("output.txt", "w");
+    if (outp == NULL) {
+        printf("\nError opening output file!\n");
+        return;
+    }
+
+    // Write hash table content to output file
+    for (i = 0; i < TABLE_SIZE; i++) {
+        if (rec[i].flag == 1) {
+            fprintf(outp, "Slot %d: %s | %d\n", i, rec[i].name, rec[i].usn);
+        } else {
+            fprintf(outp, "Slot %d: ##\n", i);
+        }
+    }
+
+    fclose(outp); // Close output file
+    printf("\nHash table content written to 'output.txt'.\n");
+}
